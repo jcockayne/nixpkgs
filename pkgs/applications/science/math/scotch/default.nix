@@ -1,25 +1,20 @@
-{ lib, stdenv, fetchurl, bison, mpi, flex, zlib}:
+{ gcc, gfortran, cmake, lib, stdenv, fetchurl, bison, mpi, flex, zlib }:
 
 stdenv.mkDerivation rec {
-  version = "6.1.1";
+  version = "7.0.3";
   pname = "scotch";
-  src_name = "scotch_${version}";
+  src_name = "scotch-v${version}";
 
-  buildInputs = [ bison mpi flex zlib ];
+  buildInputs = [ gcc gfortran cmake bison mpi flex zlib ];
 
   src = fetchurl {
-    url = "https://gforge.inria.fr/frs/download.php/file/34618/${src_name}.tar.gz";
-    sha256 = "sha256-OQUvWf9HSkppzvwlzzyvhClACIneugEO5kA8oYj4sxE=";
+    url = "https://gitlab.inria.fr/scotch/scotch/-/archive/v${version}/${src_name}.tar.gz";
+    sha256 = "sha256-W1NR8P/W/K6a5+r+zKpaJWAoRbn/0a+xBNuTLdTU88U=";
   };
 
-  sourceRoot = "${src_name}/src";
-
-  preConfigure = ''
-    ln -s Make.inc/Makefile.inc.x86-64_pc_linux2 Makefile.inc
+  configurePhase = ''
+    mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$prefix ..
   '';
-
-  buildFlags = [ "scotch ptscotch" ];
-  installFlags = [ "prefix=\${out}" ];
 
   meta = {
     description = "Graph and mesh/hypergraph partitioning, graph clustering, and sparse matrix ordering";
@@ -30,7 +25,7 @@ stdenv.mkDerivation rec {
     homepage = "http://www.labri.fr/perso/pelegrin/scotch";
     license = lib.licenses.cecill-c;
     maintainers = [ lib.maintainers.bzizou ];
-    platforms = lib.platforms.linux;
+    platforms = lib.platforms.linux ++ lib.platforms.darwin;
   };
 }
 
